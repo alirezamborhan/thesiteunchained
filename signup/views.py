@@ -29,12 +29,14 @@ def index(request):
     if request.method != "POST":
         return HttpResponseBadRequest("Error: Send your data via POST.")
     post = request.POST.dict()
-    if (set(post.keys()) != {'name', 'username', 'password'} 
-        or not is_name_valid(post['name'])
-        or not is_username_valid(post['username'])
-        or not is_password_valid(post['password'])
+    if (set(post.keys()) != {"name", "username", "password"} 
+        or not is_name_valid(post["name"])
+        or not is_username_valid(post["username"])
+        or not is_password_valid(post["password"])
 ):
         return HttpResponseBadRequest("Error: Your POST data is corrupted.")
+    if Users.objects.filter(username=post["username"]):
+        return HttpResponseBadRequest("This username already exists.")
     password_hash = pbkdf2_sha256.encrypt(post['password'],
                                           rounds=100000,
                                           salt_size=16)
